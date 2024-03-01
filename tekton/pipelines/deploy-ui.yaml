@@ -1,14 +1,13 @@
-
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: ui-build-service
+  name: workflow-ui-build-service
   namespace: tekton-pipelines
 spec:
   description: |
     Based on "cleanup-cloudformation" parameter
-    this pipeline will do UI deployment in AWS cloudformation or 
+    this pipeline will do UI deployment with AWS cloudformation or 
     sync deployment files to s3 bucket and invalidate cloudfront 
     This pipeline will do the following steps:
       - Using the git-clone catalog Task to clone the UI source Code
@@ -17,7 +16,7 @@ spec:
       - Then it will git clone the deployment source code 
       - It will copy the build artifacts into the www folder in deployment workspace.
       - It will then invoke the cloud formation template using aws cli
-    when "cleanup-cloudformation" parameter is false
+      when "cleanup-cloudformation" parameter is false
       - sync UI code to s3 bucket
       - Run cloudfront invalidation
   params:
@@ -112,7 +111,7 @@ spec:
       name: read-directory
     params:
     - name: directory
-      value: ui-code/build
+      value: ui-code/out
     workspaces:
     - name: local-ws
       workspace: ui-code
@@ -159,7 +158,7 @@ spec:
       name: copy-folder-between-workspace
     params:
     - name: source-directory
-      value: ui-code/build
+      value: ui-code/out
     - name: dest-directory
       value: deploy-code/www
     workspaces:
@@ -193,7 +192,7 @@ spec:
       - name: ARGS
         value:
           - cf-static-secure-site # s3 bucket name
-          - ui # service name
+          - workflow # service name
           - prod # environment
           - $(workspaces.source.path)/ui-code # working directory
     workspaces:
@@ -225,7 +224,7 @@ spec:
         value:
           - $(workspaces.source.path)/ui-code/main.yaml # template 
           - cf-static-secure-site # s3 bucket name
-          - ui # service name
+          - workflow # service name
           - prod # environment
           - $(workspaces.source.path)/ui-code # working directory
     workspaces:
@@ -251,7 +250,7 @@ spec:
           aws configure list
           pushd $2
           echo sync s3 with new dployment files
-          aws s3 sync build s3://ops-appkube-$4-$3-root --delete
+          aws s3 sync out s3://ops-appkube-$4-$3-root --delete
           echo "aws cloudfront invalidatation"
           export cloudfrontid=$(aws cloudfront list-distributions --query 'DistributionList.Items[?Aliases.Items[?contains(@, `appkube.synectiks.net`)]].Id' --output text)
           echo cloudfrontid: $cloudfrontid
@@ -274,11 +273,11 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: ui-build-service-run
+  name: workflow-ui-build-service-run
   namespace: tekton-pipelines
 spec:
   pipelineRef:
-    name: ui-build-service
+    name: workflow-ui-build-service
   workspaces:
   - name: ui-code
     volumeClaimTemplate:
@@ -293,10 +292,10 @@ spec:
       secretName: smoke-aws-credentials
   params:
   - name: ui-repo-url
-    value: https://github.com/AppkubeCloud/appkube-standalone-ui.git
+    value: https://github.com/AppkubeCloud/workflow-standalone-ui.git
   - name: repo-revision
     value: ''
   - name: deployment-repo-url
-    value: https://github.com/AppkubeCloud/appkube-standalone-ui-deployment.git
+    value: https://github.com/AppkubeCloud/workflow-standalone-ui-deployment.git
   - name: cleanup-cloudformation
-    value: "false"
+    value: "true"

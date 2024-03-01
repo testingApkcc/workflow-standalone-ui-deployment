@@ -136,7 +136,7 @@ Resources:
     Properties: 
       ResponseHeadersPolicyConfig: 
         Name: !Sub "${AWS::StackName}-static-site-security-headers"
-        Comment: 'Policy for appkube.synectiks.net UI deployment'
+        Comment: 'Policy for ${AWS::StackName} UI deployment'
         SecurityHeadersConfig:
           ContentSecurityPolicy:
             Override: true

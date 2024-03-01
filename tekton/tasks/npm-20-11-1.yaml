@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: npm
+  name: npm-20-11-1
   namespace: tekton-pipelines
   labels:
     app.kubernetes.io/version: "0.1"
@@ -30,7 +30,7 @@ spec:
       description: The npm goals you want to run.
     - name: IMAGE
       type: string
-      default: "docker.io/library/node:12-alpine@sha256:dfbebf17bfb014e1e7068e76325a117bccf8679c68aec6a28514184a209c8bae"
+      default: "node:20.11.1"
       description: The node image you want to use.
   steps:
     - name: echo-param
