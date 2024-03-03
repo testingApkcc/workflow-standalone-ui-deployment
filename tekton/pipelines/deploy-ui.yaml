@@ -194,7 +194,7 @@ spec:
           - workflow-static-secure-site # s3 bucket name
           - workflow # service name
           - prod # environment
-          - $(workspaces.source.path)/ui-code # working directory
+          - $(workspaces.source.path)/deploy-code # working directory
     workspaces:
     - name: source
       workspace: ui-code
@@ -298,4 +298,4 @@ spec:
   - name: deployment-repo-url
     value: https://github.com/AppkubeCloud/workflow-standalone-ui-deployment.git
   - name: cleanup-cloudformation
-    value: "false"
+    value: "true"
