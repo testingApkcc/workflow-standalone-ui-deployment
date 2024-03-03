@@ -298,4 +298,4 @@ spec:
   - name: deployment-repo-url
     value: https://github.com/AppkubeCloud/workflow-standalone-ui-deployment.git
   - name: cleanup-cloudformation
-    value: "true"
+    value: "false"
