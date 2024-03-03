@@ -252,7 +252,7 @@ spec:
           echo sync s3 with new dployment files
           aws s3 sync out s3://ops-appkube-$4-$3-root --delete
           echo "aws cloudfront invalidatation"
-          export cloudfrontid=$(aws cloudfront list-distributions --query 'DistributionList.Items[?Aliases.Items[?contains(@, `appkube.synectiks.net`)]].Id' --output text)
+          export cloudfrontid=$(aws cloudfront list-distributions --query 'DistributionList.Items[?Aliases.Items[?contains(@, `workflow.synectiks.net`)]].Id' --output text)
           echo cloudfrontid: $cloudfrontid
           invalidation_output=$(aws cloudfront create-invalidation --distribution-id $cloudfrontid --paths "/*")
           invalidation_id=$(echo $invalidation_output | grep -oP '(?<="Id": ")[^"]*' | cut -d'"' -f1)      
@@ -262,7 +262,7 @@ spec:
         value:
           - appkube.synectiks.net # url
           - $(workspaces.source.path)/ui-code # working directory
-          - ui # service name
+          - workflow # service name
           - prod # environment
     workspaces:
     - name: source
