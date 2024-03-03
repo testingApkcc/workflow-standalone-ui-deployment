@@ -68,7 +68,7 @@ spec:
     runAfter:
       - fetch-repo
     taskRef:
-      name: npm
+      name: npm-20-11-1
     workspaces:
     - name: source
       workspace: ui-code
@@ -82,7 +82,7 @@ spec:
     runAfter:
       - install-dependencies
     taskRef:
-      name: npm
+      name: npm-20-11-1
     workspaces:
       - name: source
         workspace: ui-code
@@ -191,7 +191,7 @@ spec:
           aws s3 rb s3://ops-appkube-$3-$2-root --force
       - name: ARGS
         value:
-          - cf-static-secure-site # s3 bucket name
+          - workflow-static-secure-site # s3 bucket name
           - workflow # service name
           - prod # environment
           - $(workspaces.source.path)/ui-code # working directory
@@ -222,8 +222,8 @@ spec:
           aws --region us-east-1 cloudformation deploy --stack-name ops-appkube-$3-$4 --template-file packaged.template --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides DomainName=synectiks.net SubDomain=appkube CreateApex=no HostedZoneId=ZY8RNBR15YWYU AppkubeDepartment=ops AppkubeProduct=appkube AppkubeEnvironment=$4 AppkubeService=$3
       - name: ARGS
         value:
-          - $(workspaces.source.path)/ui-code/main.yaml # template 
-          - cf-static-secure-site # s3 bucket name
+          - $(workspaces.source.path)/deploy-code/main.yaml # template 
+          - workflow-static-secure-site # s3 bucket name
           - workflow # service name
           - prod # environment
           - $(workspaces.source.path)/ui-code # working directory
