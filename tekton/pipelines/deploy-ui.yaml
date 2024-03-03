@@ -219,14 +219,14 @@ spec:
           pushd $5
           echo "aws cloudformation execution"
           aws --region us-east-1 cloudformation package --template-file $1 --s3-bucket $2 --output-template-file packaged.template
-          aws --region us-east-1 cloudformation deploy --stack-name ops-appkube-$3-$4 --template-file packaged.template --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides DomainName=synectiks.net SubDomain=appkube CreateApex=no HostedZoneId=ZY8RNBR15YWYU AppkubeDepartment=ops AppkubeProduct=appkube AppkubeEnvironment=$4 AppkubeService=$3
+          aws --region us-east-1 cloudformation deploy --stack-name ops-appkube-$3-$4 --template-file packaged.template --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides DomainName=synectiks.net SubDomain=$3 CreateApex=no HostedZoneId=ZY8RNBR15YWYU AppkubeDepartment=ops AppkubeProduct=appkube AppkubeEnvironment=$4 AppkubeService=$3
       - name: ARGS
         value:
           - $(workspaces.source.path)/deploy-code/main.yaml # template 
           - workflow-static-secure-site # s3 bucket name
           - workflow # service name
           - prod # environment
-          - $(workspaces.source.path)/ui-code # working directory
+          - $(workspaces.source.path)/deploy-code # working directory
     workspaces:
     - name: source
       workspace: ui-code
@@ -260,7 +260,7 @@ spec:
           echo Invalidation completed, Invalidation ID: $invalidation_id
       - name: ARGS
         value:
-          - appkube.synectiks.net # url
+          - workflow.synectiks.net # url
           - $(workspaces.source.path)/ui-code # working directory
           - workflow # service name
           - prod # environment
@@ -298,4 +298,4 @@ spec:
   - name: deployment-repo-url
     value: https://github.com/AppkubeCloud/workflow-standalone-ui-deployment.git
   - name: cleanup-cloudformation
-    value: "true"
+    value: "false"
