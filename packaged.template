@@ -55,7 +55,7 @@ Resources:
   CustomResourceStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.us-east-1.amazonaws.com/workflow-static-secure-site/6ab58614ec43b7a24db59ffc6eb63f21.template
+      TemplateURL: https://s3.us-east-1.amazonaws.com/workflow-static-secure-site/9dafb7644e2f4fbbcab60073f9d82bd2.template
       Tags:
       - Key: Solution
         Value: ACFS3
@@ -111,7 +111,7 @@ Resources:
   CloudFrontStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.us-east-1.amazonaws.com/workflow-static-secure-site/1f6efaab4ed7e8927cccb5615e0be180.template
+      TemplateURL: https://s3.us-east-1.amazonaws.com/workflow-static-secure-site/ceba48a75c6cb96246eb3dd190265df5.template
       Parameters:
         CertificateArn:
           Fn::GetAtt:
