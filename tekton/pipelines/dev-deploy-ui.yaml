@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: test-workflow-ui-build-service
+  name: dev-workflow-ui-build-service
   namespace: tekton-pipelines
 spec:
   description: |
@@ -120,7 +120,7 @@ spec:
       name: read-directory
     params:
     - name: directory
-      value: ui-code/next
+      value: ui-code/.next
     workspaces:
     - name: local-ws
       workspace: ui-code
@@ -215,7 +215,8 @@ spec:
         operator: in
         values: ["true"] 
     runAfter:
-      - cleanup-prior-ui-hosting
+      #- cleanup-prior-ui-hosting
+      - copy-build-content-in-www
     taskRef:
       name: aws-cli
     params:
@@ -225,6 +226,17 @@ spec:
           export AWS_SHARED_CREDENTIALS_FILE=/tekton/home/.aws/credentials
           echo "aws configuration"
           aws configure list
+          
+          bucket_name=$2
+          # Check if the bucket already exists
+          if aws s3api head-bucket --bucket "$bucket_name" 2>/dev/null; then
+            echo "Bucket '$bucket_name' already exists."
+          else
+            # Create the bucket if it doesn't exist
+            echo "Bucket '$bucket_name' does not exist. Creating..."
+            aws s3 mb "s3://$bucket_name"
+            fi
+
           pushd $5
           echo "aws cloudformation execution"
           aws --region us-east-1 cloudformation package --template-file $1 --s3-bucket $2 --output-template-file packaged.template
@@ -263,7 +275,8 @@ spec:
           echo "aws cloudfront invalidatation"
           domain="${environment}-${service_name}.synectiks.net"  # Construct the domain to search for in the query
           #export cloudfrontid=$(aws cloudfront list-distributions --query 'DistributionList.Items[?Aliases.Items[?contains(@, `$4-$3.synectiks.net`)]].Id' --output text)
-          export cloudfrontid=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items[?contains(@, '${domain}')]].Id" --output text)
+          #export cloudfrontid=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items[?contains(@, '${domain}')]].Id" --output text)
+          export cloudfrontid=$(aws cloudfront list-distributions --query 'DistributionList.Items[?Aliases.Items[?contains(@, `dev-workflow.synectiks.net`)]].Id' --output text)
           echo cloudfrontid: $cloudfrontid
           invalidation_output=$(aws cloudfront create-invalidation --distribution-id $cloudfrontid --paths "/*")
           invalidation_id=$(echo $invalidation_output | grep -oP '(?<="Id": ")[^"]*' | cut -d'"' -f1)      
@@ -284,11 +297,11 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: test-workflow-ui-build-service-run
+  name: dev-workflow-ui-build-service-run
   namespace: tekton-pipelines
 spec:
   pipelineRef:
-    name: test-workflow-ui-build-service
+    name: dev-workflow-ui-build-service
   workspaces:
   - name: ui-code
     volumeClaimTemplate:
@@ -311,10 +324,9 @@ spec:
   - name: deployment-repo-url
     value: https://github.com/AppkubeCloud/workflow-standalone-ui-deployment.git
   - name: cleanup-cloudformation
-    value: "true"
+    value: "false"
   - name: environment
-    type: string
     value: "dev"
   - name: source-s3
-    type: string
-    value: "$(params.environment == 'dev' ? params.environment + '-workflow-static-secure-site' : 'workflow-static-secure-site')" # Conditional prefix based on environment variable
+    # value: "$(params.environment == 'dev' ? params.environment + '-workflow-static-secure-site' : 'workflow-static-secure-site')" # Conditional prefix based on environment variable
+    value: "dev-workflow-static-secure-site"
